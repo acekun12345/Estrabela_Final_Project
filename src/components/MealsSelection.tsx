@@ -8,6 +8,8 @@ export type Meal = {
 
 type MealsSelectionProps = {
   meals: Meal[];
+  quantities?: Record<string, number>;
+  onQuantityChange?: (mealId: number, quantity: number) => void;
 };
 
 const currencyFormatter = new Intl.NumberFormat('en-US', {
@@ -16,26 +18,40 @@ const currencyFormatter = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 2,
 });
 
-function MealsSelection({ meals }: MealsSelectionProps) {
-  const [quantities, setQuantities] = useState<Record<number, number>>({});
+function MealsSelection({
+  meals,
+  quantities: controlledQuantities,
+  onQuantityChange,
+}: MealsSelectionProps) {
+  const [internalQuantities, setInternalQuantities] = useState<
+    Record<string, number>
+  >({});
+  const isControlled =
+    controlledQuantities !== undefined && onQuantityChange !== undefined;
+  const quantities = controlledQuantities ?? internalQuantities;
 
   const updateQuantity = (mealId: number, value: number) => {
     const quantity = Number.isFinite(value)
       ? Math.max(0, Math.floor(value))
       : 0;
 
-    setQuantities((currentQuantities) => ({
-      ...currentQuantities,
-      [mealId]: quantity,
-    }));
+    if (isControlled) {
+      onQuantityChange(mealId, quantity);
+    } else {
+      setInternalQuantities((currentQuantities) => ({
+        ...currentQuantities,
+        [mealId]: quantity,
+      }));
+    }
   };
 
   const selectedCount = meals.reduce(
-    (count, meal) => count + (quantities[meal.id] ?? 0),
+    (count, meal) => count + (quantities[String(meal.id)] ?? 0),
     0,
   );
   const selectedTotal = meals.reduce(
-    (total, meal) => total + meal.price * (quantities[meal.id] ?? 0),
+    (total, meal) =>
+      total + meal.price * (quantities[String(meal.id)] ?? 0),
     0,
   );
 
@@ -68,7 +84,7 @@ function MealsSelection({ meals }: MealsSelectionProps) {
                 step={1}
                 inputMode="numeric"
                 aria-label={`Quantity of ${meal.name}`}
-                value={quantities[meal.id] ?? 0}
+                value={quantities[String(meal.id)] ?? 0}
                 onChange={(event) =>
                   updateQuantity(meal.id, event.currentTarget.valueAsNumber)
                 }

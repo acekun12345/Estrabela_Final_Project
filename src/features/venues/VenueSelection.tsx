@@ -10,6 +10,8 @@ export type Venue = {
 
 type VenueSelectionProps = {
   venues: Venue[];
+  selectedVenueId?: number | null;
+  onSelectVenue?: (venue: Venue) => void;
 };
 
 const currencyFormatter = new Intl.NumberFormat('en-US', {
@@ -18,8 +20,18 @@ const currencyFormatter = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 2,
 });
 
-export function VenueSelection({ venues }: VenueSelectionProps) {
-  const [selectedVenueId, setSelectedVenueId] = useState<number | null>(null);
+export function VenueSelection({
+  venues,
+  selectedVenueId: controlledSelectedVenueId,
+  onSelectVenue,
+}: VenueSelectionProps) {
+  const [internalSelectedVenueId, setInternalSelectedVenueId] =
+    useState<number | null>(null);
+  const isControlled =
+    controlledSelectedVenueId !== undefined && onSelectVenue !== undefined;
+  const selectedVenueId = isControlled
+    ? controlledSelectedVenueId
+    : internalSelectedVenueId;
   const selectedVenue =
     venues.find((venue) => venue.id === selectedVenueId) ?? null;
 
@@ -46,7 +58,14 @@ export function VenueSelection({ venues }: VenueSelectionProps) {
                 key={venue.id}
                 type="button"
                 aria-pressed={selectedVenueId === venue.id}
-                onClick={() => setSelectedVenueId(venue.id)}
+                onClick={() => {
+                  if (isControlled) {
+                    onSelectVenue(venue);
+                  } else {
+                    setInternalSelectedVenueId(venue.id);
+                    onSelectVenue?.(venue);
+                  }
+                }}
               >
                 <span className="venue-option-icon" aria-hidden="true">
                   {venue.name.charAt(0)}

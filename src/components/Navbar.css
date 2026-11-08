@@ -68,8 +68,13 @@
 }
 
 .planner-navbar-link:hover,
-.planner-navbar-link:focus-visible {
+.planner-navbar-link:focus-visible,
+.planner-navbar-link.is-active {
   color: #fffaf5;
+}
+
+.planner-navbar-link.is-active::after {
+  transform: scaleX(1);
 }
 
 .planner-navbar-link:hover::after,

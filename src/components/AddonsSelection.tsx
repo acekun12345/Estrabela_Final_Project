@@ -8,6 +8,8 @@ export type Addon = {
 
 type AddonsSelectionProps = {
   addons: Addon[];
+  selectedQuantities?: Record<string, number>;
+  onQuantityChange?: (addonId: number, quantity: number) => void;
 };
 
 const currencyFormatter = new Intl.NumberFormat('en-US', {
@@ -16,30 +18,43 @@ const currencyFormatter = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 2,
 });
 
-function AddonsSelection({ addons }: AddonsSelectionProps) {
-  const [selectedAddonIds, setSelectedAddonIds] = useState<Set<number>>(
+function AddonsSelection({
+  addons,
+  selectedQuantities: controlledQuantities,
+  onQuantityChange,
+}: AddonsSelectionProps) {
+  const [internalSelectedIds, setInternalSelectedIds] = useState<Set<number>>(
     () => new Set(),
   );
+  const isControlled =
+    controlledQuantities !== undefined && onQuantityChange !== undefined;
+  const selectedQuantities = controlledQuantities ?? {};
+
+  const isSelected = (addonId: number) =>
+    isControlled
+      ? (selectedQuantities[String(addonId)] ?? 0) > 0
+      : internalSelectedIds.has(addonId);
 
   const toggleAddon = (addonId: number) => {
-    setSelectedAddonIds((currentSelection) => {
+    if (isControlled) {
+      onQuantityChange(addonId, isSelected(addonId) ? 0 : 1);
+      return;
+    }
+
+    setInternalSelectedIds((currentSelection) => {
       const nextSelection = new Set(currentSelection);
-
-      if (nextSelection.has(addonId)) {
-        nextSelection.delete(addonId);
-      } else {
-        nextSelection.add(addonId);
-      }
-
+      if (nextSelection.has(addonId)) nextSelection.delete(addonId);
+      else nextSelection.add(addonId);
       return nextSelection;
     });
   };
 
   const selectedTotal = addons.reduce(
     (total, addon) =>
-      selectedAddonIds.has(addon.id) ? total + addon.price : total,
+      isSelected(addon.id) ? total + addon.price : total,
     0,
   );
+  const selectedCount = addons.filter((addon) => isSelected(addon.id)).length;
 
   return (
     <section aria-labelledby="addons-selection-title">
@@ -65,7 +80,7 @@ function AddonsSelection({ addons }: AddonsSelectionProps) {
             >
               <input
                 type="checkbox"
-                checked={selectedAddonIds.has(addon.id)}
+                checked={isSelected(addon.id)}
                 onChange={() => toggleAddon(addon.id)}
               />
               <span style={{ flex: 1 }}>{addon.name}</span>
@@ -76,7 +91,7 @@ function AddonsSelection({ addons }: AddonsSelectionProps) {
       )}
 
       <p aria-live="polite">
-        {selectedAddonIds.size} selected · Total:{' '}
+        {selectedCount} selected · Total:{' '}
         {currencyFormatter.format(selectedTotal)}
       </p>
     </section>

@@ -3,7 +3,7 @@ import './App.css';
 import AddonsSelection from './components/AddonsSelection';
 import './components/ConferenceEvent.css';
 import MealsSelection from './components/MealsSelection';
-import Navbar, { type PlannerView } from './components/Navbar';
+import Navbar, { type PlannerSection } from './components/Navbar';
 import TotalCost from './components/TotalCost';
 import LandingPage from './LandingPage';
 import VenueSelection from './features/venues/VenueSelection';
@@ -20,25 +20,25 @@ function App() {
   const [venues, setVenues] = useState<Venue[]>([]);
   const [addons, setAddons] = useState<Addon[]>([]);
   const [meals, setMeals] = useState<Meal[]>([]);
-  const [selectedVenueId, setSelectedVenueId] = useState<number | null>(null);
-  const [addonQuantities, setAddonQuantities] = useState<Record<string, number>>(
-    {},
-  );
+  const [venueQuantities, setVenueQuantities] = useState<
+    Record<string, number>
+  >({});
+  const [addonQuantities, setAddonQuantities] = useState<
+    Record<string, number>
+  >({});
   const [mealQuantities, setMealQuantities] = useState<Record<string, number>>(
     {},
   );
-  const [activeView, setActiveView] = useState<PlannerView>('venues');
+  const [guestCount, setGuestCount] = useState(1);
+  const [activeSection, setActiveSection] = useState<PlannerSection>('venues');
+  const [showDetails, setShowDetails] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     let isCurrent = true;
 
-    Promise.all([
-      getVenues(),
-      getAddons(),
-      getMeals(),
-    ])
+    Promise.all([getVenues(), getAddons(), getMeals()])
       .then(([venueData, addonData, mealData]) => {
         if (!isCurrent) return;
         setVenues(venueData);
@@ -59,74 +59,108 @@ function App() {
     };
   }, []);
 
-  const selectedVenue =
-    venues.find((venue) => venue.id === selectedVenueId) ?? null;
+  const navigateTo = (section: PlannerSection) => {
+    setActiveSection(section);
+    document.getElementById(section)?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    });
+  };
+
+  const updateGuestCount = (nextCount: number) => {
+    const safeCount = Number.isFinite(nextCount)
+      ? Math.min(10000, Math.max(1, Math.floor(nextCount)))
+      : 1;
+    setGuestCount(safeCount);
+    setMealQuantities((current) =>
+      Object.fromEntries(
+        Object.entries(current)
+          .filter(([, quantity]) => quantity > 0)
+          .map(([mealId]) => [mealId, safeCount]),
+      ),
+    );
+  };
 
   if (!hasStarted) {
-    return (
-      <LandingPage
-        onGetStarted={() => {
-          setHasStarted(true);
-          setActiveView('venues');
-        }}
-      />
-    );
+    return <LandingPage onGetStarted={() => setHasStarted(true)} />;
   }
 
   return (
-    <div className="conference-event">
-      <Navbar activeView={activeView} onNavigate={setActiveView} />
+    <div className="conference-event" id="top">
+      <Navbar
+        activeSection={activeSection}
+        showDetails={showDetails}
+        onNavigate={navigateTo}
+        onToggleDetails={() => {
+          setShowDetails((current) => !current);
+          if (!showDetails) {
+            window.setTimeout(
+              () =>
+                document
+                  .getElementById('details')
+                  ?.scrollIntoView({ behavior: 'smooth', block: 'center' }),
+              0,
+            );
+          }
+        }}
+      />
       <main className="conference-event__main">
+        <section className="planner-intro" aria-labelledby="planner-title">
+          <p className="planner-intro__eyebrow">PLAN YOUR NEXT GATHERING</p>
+          <h1 id="planner-title">Conference Expense Planner</h1>
+          <p>Select your venue, add-ons, and meals below.</p>
+        </section>
+
         {loadError && (
-          <p role="alert" style={{ color: '#ffb28a' }}>
+          <p className="planner-error" role="alert">
             {loadError}
           </p>
         )}
 
-        {activeView === 'venues' && (
-          <VenueSelection
-            venues={venues}
-            selectedVenueId={selectedVenueId}
-            onSelectVenue={(venue) => setSelectedVenueId(venue.id)}
-          />
-        )}
+        <VenueSelection
+          venues={venues}
+          quantities={venueQuantities}
+          onQuantityChange={(venueId, quantity) =>
+            setVenueQuantities((current) => ({
+              ...current,
+              [venueId]: quantity,
+            }))
+          }
+        />
 
-        {activeView === 'addons' && (
-          <AddonsSelection
-            addons={addons}
-            selectedQuantities={addonQuantities}
-            onQuantityChange={(addonId, quantity) =>
-              setAddonQuantities((current) => ({
-                ...current,
-                [addonId]: quantity,
-              }))
-            }
-          />
-        )}
+        <AddonsSelection
+          addons={addons}
+          selectedQuantities={addonQuantities}
+          onQuantityChange={(addonId, quantity) =>
+            setAddonQuantities((current) => ({
+              ...current,
+              [addonId]: quantity,
+            }))
+          }
+        />
 
-        {activeView === 'meals' && (
-          <MealsSelection
-            meals={meals}
-            quantities={mealQuantities}
-            onQuantityChange={(mealId, quantity) =>
-              setMealQuantities((current) => ({
-                ...current,
-                [mealId]: quantity,
-              }))
-            }
-          />
-        )}
+        <MealsSelection
+          meals={meals}
+          quantities={mealQuantities}
+          guestCount={guestCount}
+          onGuestCountChange={updateGuestCount}
+          onQuantityChange={(mealId, quantity) =>
+            setMealQuantities((current) => ({
+              ...current,
+              [mealId]: quantity > 0 ? guestCount : 0,
+            }))
+          }
+        />
 
-        {activeView === 'details' && (
-          <TotalCost
-            venue={selectedVenue}
-            venueQuantity={selectedVenue ? 1 : 0}
-            addons={addons}
-            addonQuantities={addonQuantities}
-            meals={meals}
-            mealQuantities={mealQuantities}
-          />
-        )}
+        <TotalCost
+          venues={venues}
+          venueQuantities={venueQuantities}
+          addons={addons}
+          addonQuantities={addonQuantities}
+          meals={meals}
+          mealQuantities={mealQuantities}
+          showDetails={showDetails}
+        />
       </main>
     </div>
   );

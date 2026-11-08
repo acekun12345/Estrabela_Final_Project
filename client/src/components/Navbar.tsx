@@ -1,49 +1,62 @@
 import './Navbar.css';
 
-export type PlannerView = 'venues' | 'addons' | 'meals' | 'details';
+export type PlannerSection = 'venues' | 'addons' | 'meals';
 
 type NavbarProps = {
-  activeView?: PlannerView;
-  onNavigate?: (view: PlannerView) => void;
+  activeSection: PlannerSection;
+  showDetails: boolean;
+  onNavigate: (section: PlannerSection) => void;
+  onToggleDetails: () => void;
 };
 
-const navigationLinks: { label: string; href: string; view: PlannerView }[] = [
-  { label: 'Venues', href: '#venues', view: 'venues' },
-  { label: 'Add-ons', href: '#addons', view: 'addons' },
-  { label: 'Meals', href: '#meals', view: 'meals' },
-  { label: 'Details', href: '#details', view: 'details' },
+const navigationLinks: { label: string; section: PlannerSection }[] = [
+  { label: 'Venue', section: 'venues' },
+  { label: 'Add-ons', section: 'addons' },
+  { label: 'Meals', section: 'meals' },
 ];
 
-function Navbar({ activeView, onNavigate }: NavbarProps) {
+function Navbar({
+  activeSection,
+  showDetails,
+  onNavigate,
+  onToggleDetails,
+}: NavbarProps) {
   return (
     <header className="planner-navbar">
-      <a className="planner-navbar-brand" href="/" aria-label="Conference Expense Planner home">
+      <a
+        className="planner-navbar-brand"
+        href="#top"
+        aria-label="Conference Expense Planner"
+      >
         <span className="planner-navbar-logo" aria-hidden="true">
           C
         </span>
-        <span>Conference Planner</span>
+        <span>Conference Expense Planner</span>
       </a>
 
-      <nav className="planner-navbar-links" aria-label="Main navigation">
+      <nav className="planner-navbar-links" aria-label="Planner sections">
         {navigationLinks.map((link) => (
-          <a
-            className={`planner-navbar-link${activeView === link.view ? ' is-active' : ''}`}
-            href={link.href}
-            key={link.href}
-            aria-current={activeView === link.view ? 'page' : undefined}
-            onClick={
-              onNavigate
-                ? (event) => {
-                    event.preventDefault();
-                    onNavigate(link.view);
-                  }
-                : undefined
-            }
+          <button
+            className={`planner-navbar-link${activeSection === link.section ? ' is-active' : ''}`}
+            key={link.section}
+            type="button"
+            aria-current={activeSection === link.section ? 'location' : undefined}
+            onClick={() => onNavigate(link.section)}
           >
             {link.label}
-          </a>
+          </button>
         ))}
       </nav>
+
+      <button
+        className="planner-navbar-details"
+        type="button"
+        aria-expanded={showDetails}
+        aria-controls="details"
+        onClick={onToggleDetails}
+      >
+        {showDetails ? 'Hide Details' : 'Show Details'}
+      </button>
     </header>
   );
 }

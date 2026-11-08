@@ -1,0 +1,120 @@
+.planner-navbar {
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 0 clamp(20px, 5vw, 72px);
+  border-bottom: 1px solid rgb(255 255 255 / 10%);
+  color: #f7f4ef;
+  background: #111916;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 18%);
+  box-sizing: border-box;
+}
+
+.planner-navbar-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  color: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.1px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.planner-navbar-logo {
+  width: 35px;
+  height: 35px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  color: #21150e;
+  background: linear-gradient(135deg, #ffad70, #ff7838);
+  box-shadow: 0 0 20px rgb(255 138 61 / 24%);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 20px;
+}
+
+.planner-navbar-links {
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 3vw, 36px);
+}
+
+.planner-navbar-link {
+  position: relative;
+  padding: 26px 0;
+  color: #b9c1bb;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 150ms ease;
+}
+
+.planner-navbar-link::after {
+  position: absolute;
+  right: 0;
+  bottom: 17px;
+  left: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: #ff9858;
+  content: '';
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 150ms ease;
+}
+
+.planner-navbar-link:hover,
+.planner-navbar-link:focus-visible,
+.planner-navbar-link.is-active {
+  color: #fffaf5;
+}
+
+.planner-navbar-link.is-active::after {
+  transform: scaleX(1);
+}
+
+.planner-navbar-link:hover::after,
+.planner-navbar-link:focus-visible::after {
+  transform: scaleX(1);
+}
+
+.planner-navbar-link:focus-visible,
+.planner-navbar-brand:focus-visible {
+  outline: 2px solid #ffd0a8;
+  outline-offset: 4px;
+}
+
+@media (max-width: 600px) {
+  .planner-navbar {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 16px;
+  }
+
+  .planner-navbar-links {
+    width: 100%;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .planner-navbar-link {
+    padding: 12px 0 18px;
+    font-size: 12px;
+  }
+
+  .planner-navbar-link::after {
+    bottom: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .planner-navbar-link,
+  .planner-navbar-link::after {
+    transition: none;
+  }
+}

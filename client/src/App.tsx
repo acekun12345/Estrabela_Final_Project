@@ -1,0 +1,135 @@
+import { useEffect, useState } from 'react';
+import './App.css';
+import AddonsSelection from './components/AddonsSelection';
+import './components/ConferenceEvent.css';
+import MealsSelection from './components/MealsSelection';
+import Navbar, { type PlannerView } from './components/Navbar';
+import TotalCost from './components/TotalCost';
+import LandingPage from './LandingPage';
+import VenueSelection from './features/venues/VenueSelection';
+import {
+  getAddons,
+  getMeals,
+  getVenues,
+  type Addon,
+  type Meal,
+  type Venue,
+} from './services/api';
+
+function App() {
+  const [venues, setVenues] = useState<Venue[]>([]);
+  const [addons, setAddons] = useState<Addon[]>([]);
+  const [meals, setMeals] = useState<Meal[]>([]);
+  const [selectedVenueId, setSelectedVenueId] = useState<number | null>(null);
+  const [addonQuantities, setAddonQuantities] = useState<Record<string, number>>(
+    {},
+  );
+  const [mealQuantities, setMealQuantities] = useState<Record<string, number>>(
+    {},
+  );
+  const [activeView, setActiveView] = useState<PlannerView>('venues');
+  const [hasStarted, setHasStarted] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isCurrent = true;
+
+    Promise.all([
+      getVenues(),
+      getAddons(),
+      getMeals(),
+    ])
+      .then(([venueData, addonData, mealData]) => {
+        if (!isCurrent) return;
+        setVenues(venueData);
+        setAddons(addonData);
+        setMeals(mealData);
+      })
+      .catch((error: unknown) => {
+        if (!isCurrent) return;
+        setLoadError(
+          error instanceof Error
+            ? error.message
+            : 'Could not load the event options.',
+        );
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, []);
+
+  const selectedVenue =
+    venues.find((venue) => venue.id === selectedVenueId) ?? null;
+
+  if (!hasStarted) {
+    return (
+      <LandingPage
+        onGetStarted={() => {
+          setHasStarted(true);
+          setActiveView('venues');
+        }}
+      />
+    );
+  }
+
+  return (
+    <div className="conference-event">
+      <Navbar activeView={activeView} onNavigate={setActiveView} />
+      <main className="conference-event__main">
+        {loadError && (
+          <p role="alert" style={{ color: '#ffb28a' }}>
+            {loadError}
+          </p>
+        )}
+
+        {activeView === 'venues' && (
+          <VenueSelection
+            venues={venues}
+            selectedVenueId={selectedVenueId}
+            onSelectVenue={(venue) => setSelectedVenueId(venue.id)}
+          />
+        )}
+
+        {activeView === 'addons' && (
+          <AddonsSelection
+            addons={addons}
+            selectedQuantities={addonQuantities}
+            onQuantityChange={(addonId, quantity) =>
+              setAddonQuantities((current) => ({
+                ...current,
+                [addonId]: quantity,
+              }))
+            }
+          />
+        )}
+
+        {activeView === 'meals' && (
+          <MealsSelection
+            meals={meals}
+            quantities={mealQuantities}
+            onQuantityChange={(mealId, quantity) =>
+              setMealQuantities((current) => ({
+                ...current,
+                [mealId]: quantity,
+              }))
+            }
+          />
+        )}
+
+        {activeView === 'details' && (
+          <TotalCost
+            venue={selectedVenue}
+            venueQuantity={selectedVenue ? 1 : 0}
+            addons={addons}
+            addonQuantities={addonQuantities}
+            meals={meals}
+            mealQuantities={mealQuantities}
+          />
+        )}
+      </main>
+    </div>
+  );
+}
+
+export default App;

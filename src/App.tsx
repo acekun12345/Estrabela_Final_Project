@@ -1,28 +1,20 @@
 import { useEffect, useState } from 'react';
 import './App.css';
-import AddonsSelection, { type Addon } from './components/AddonsSelection';
+import AddonsSelection from './components/AddonsSelection';
 import './components/ConferenceEvent.css';
-import MealsSelection, { type Meal } from './components/MealsSelection';
+import MealsSelection from './components/MealsSelection';
 import Navbar, { type PlannerView } from './components/Navbar';
 import TotalCost from './components/TotalCost';
 import LandingPage from './LandingPage';
-import VenueSelection, { type Venue } from './features/venues/VenueSelection';
-
-async function fetchCollection<T>(endpoint: string): Promise<T[]> {
-  const response = await fetch(`http://localhost:5000/api/${endpoint}`);
-
-  if (!response.ok) {
-    throw new Error(`Could not load ${endpoint} (HTTP ${response.status}).`);
-  }
-
-  const data: unknown = await response.json();
-
-  if (!Array.isArray(data)) {
-    throw new Error(`The ${endpoint} response was not a list.`);
-  }
-
-  return data as T[];
-}
+import VenueSelection from './features/venues/VenueSelection';
+import {
+  getAddons,
+  getMeals,
+  getVenues,
+  type Addon,
+  type Meal,
+  type Venue,
+} from './services/api';
 
 function App() {
   const [venues, setVenues] = useState<Venue[]>([]);
@@ -43,9 +35,9 @@ function App() {
     let isCurrent = true;
 
     Promise.all([
-      fetchCollection<Venue>('venues'),
-      fetchCollection<Addon>('addons'),
-      fetchCollection<Meal>('meals'),
+      getVenues(),
+      getAddons(),
+      getMeals(),
     ])
       .then(([venueData, addonData, mealData]) => {
         if (!isCurrent) return;

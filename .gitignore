@@ -1,0 +1,12 @@
+**/node_modules/
+**/dist/
+**/dist-ssr/
+**/build/
+**/.env
+**/.env.*
+!**/.env.example
+**/.DS_Store
+**/._*
+**/Thumbs.db
+**/Desktop.ini
+*.log

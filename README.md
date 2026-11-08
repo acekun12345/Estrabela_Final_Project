@@ -1,75 +1,104 @@
-# React + TypeScript + Vite
+# Conference Expense Planner
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React application for planning conference expenses. Browse venue options,
+choose add-ons and meals, and review an itemized event cost summary.
 
-Currently, two official plugins are available:
+## Tech stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Frontend:** Vite, React, TypeScript, Redux Toolkit
+- **Backend:** Node.js, Express
+- **Other:** CSS, `fetch`, and `dotenv`
 
-## React Compiler
+## Requirements
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Node.js 20 or newer
+- npm
 
-## Expanding the ESLint configuration
+## Installation
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+Install dependencies separately for the client and server:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```powershell
+cd client
+npm install
+cd ..\server
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+## Environment configuration
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+The server reads its configuration from `server/.env`. A local example file is
+provided at `server/.env.example`:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```dotenv
+PORT=5000
+CORS_ORIGIN=http://localhost:5173
+```
 
+Copy the example if you need to recreate your local environment file:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+Run that command from the `server` directory. The local `.env` file is ignored
+by Git; keep machine-specific settings there.
+
+The client uses `http://localhost:5000/api` by default. To use a different API
+base URL, define `VITE_API_BASE_URL` in the client's environment (for example,
+`http://localhost:5000/api`).
+
+## Running locally
+
+Start the backend in one terminal:
+
+```powershell
+cd server
+npm start
+```
+
+Start the frontend in a second terminal:
+
+```powershell
+cd client
+npm run dev
+```
+
+Open the Vite URL printed in the client terminal, usually
+`http://localhost:5173`.
+
+The API is available at `http://localhost:5000` by default:
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/health` | Server status and uptime |
+| `GET` | `/api/venues` | Available venues |
+| `GET` | `/api/addons` | Available add-ons |
+| `GET` | `/api/meals` | Available meals |
+
+## Client scripts
+
+Run these commands from `client/`:
+
+```powershell
+npm run dev       # Start the Vite development server
+npm run build     # Type-check and create a production build
+npm run preview   # Preview the production build
+npm run lint      # Run ESLint
+```
+
+## Project structure
+
+```text
+client/
+  src/
+    app/           Redux store
+    components/    Planner UI components
+    features/      Feature-specific state and components
+    hooks/         Reusable React hooks
+    services/      API client
+    utils/         Formatting helpers
+server/
+  middleware/      Express middleware
+  index.js         Express API entry point
 ```

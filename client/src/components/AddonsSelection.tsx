@@ -12,6 +12,22 @@ type AddonsSelectionProps = {
   onQuantityChange?: (addonId: number, quantity: number) => void;
 };
 
+const addonImages: Record<string, string> = {
+  projectors:
+    'https://images.unsplash.com/photo-1492619375914-88005aa9e8fb?auto=format&fit=crop&w=720&q=80',
+  speakers:
+    'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?auto=format&fit=crop&w=720&q=80',
+  microphones:
+    'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=720&q=80',
+  whiteboards:
+    'https://images.unsplash.com/photo-1506784983877-45594efa4cbe?auto=format&fit=crop&w=720&q=80',
+  signage:
+    'https://images.unsplash.com/photo-1505236858219-8359eb29e329?auto=format&fit=crop&w=720&q=80',
+};
+
+const fallbackImage =
+  'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=720&q=80';
+
 const currencyFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD',
@@ -23,76 +39,99 @@ function AddonsSelection({
   selectedQuantities: controlledQuantities,
   onQuantityChange,
 }: AddonsSelectionProps) {
-  const [internalSelectedIds, setInternalSelectedIds] = useState<Set<number>>(
-    () => new Set(),
-  );
-  const isControlled =
-    controlledQuantities !== undefined && onQuantityChange !== undefined;
-  const selectedQuantities = controlledQuantities ?? {};
+  const [internalQuantities, setInternalQuantities] = useState<
+    Record<string, number>
+  >({});
+  const quantities = controlledQuantities ?? internalQuantities;
 
-  const isSelected = (addonId: number) =>
-    isControlled
-      ? (selectedQuantities[String(addonId)] ?? 0) > 0
-      : internalSelectedIds.has(addonId);
+  const updateQuantity = (addonId: number, nextQuantity: number) => {
+    const quantity = Math.max(0, nextQuantity);
 
-  const toggleAddon = (addonId: number) => {
-    if (isControlled) {
-      onQuantityChange(addonId, isSelected(addonId) ? 0 : 1);
-      return;
+    if (onQuantityChange) {
+      onQuantityChange(addonId, quantity);
+    } else {
+      setInternalQuantities((current) => ({
+        ...current,
+        [addonId]: quantity,
+      }));
     }
-
-    setInternalSelectedIds((currentSelection) => {
-      const nextSelection = new Set(currentSelection);
-      if (nextSelection.has(addonId)) nextSelection.delete(addonId);
-      else nextSelection.add(addonId);
-      return nextSelection;
-    });
   };
 
   const selectedTotal = addons.reduce(
     (total, addon) =>
-      isSelected(addon.id) ? total + addon.price : total,
+      total + addon.price * (quantities[String(addon.id)] ?? 0),
     0,
   );
-  const selectedCount = addons.filter((addon) => isSelected(addon.id)).length;
 
   return (
-    <section aria-labelledby="addons-selection-title">
-      <h2 id="addons-selection-title">Choose add-ons</h2>
-      <p>Select any equipment or extras you need for your event.</p>
+    <section
+      className="addons-selection planner-section"
+      id="addons"
+      aria-labelledby="addons-selection-title"
+    >
+      <div className="planner-section__heading">
+        <div>
+          <p className="planner-section__eyebrow">02 / EQUIPMENT</p>
+          <h2 id="addons-selection-title">Add-ons Selection</h2>
+        </div>
+        <p>Choose the extras you need for a seamless event.</p>
+      </div>
 
       {addons.length === 0 ? (
-        <p role="status">No add-ons are currently available.</p>
+        <p className="planner-empty" role="status">
+          No add-ons are currently available.
+        </p>
       ) : (
-        <fieldset>
-          <legend>Available add-ons</legend>
-          {addons.map((addon) => (
-            <label
-              key={addon.id}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                padding: '12px 0',
-                borderBottom: '1px solid currentColor',
-                cursor: 'pointer',
-              }}
-            >
-              <input
-                type="checkbox"
-                checked={isSelected(addon.id)}
-                onChange={() => toggleAddon(addon.id)}
-              />
-              <span style={{ flex: 1 }}>{addon.name}</span>
-              <span>{currencyFormatter.format(addon.price)}</span>
-            </label>
-          ))}
-        </fieldset>
+        <div className="planner-item-grid">
+          {addons.map((addon) => {
+            const quantity = quantities[String(addon.id)] ?? 0;
+            const image =
+              addonImages[addon.name.toLowerCase()] ?? fallbackImage;
+
+            return (
+              <article
+                className={`planner-item-card${quantity > 0 ? ' is-selected' : ''}`}
+                key={addon.id}
+              >
+                <img
+                  className="planner-item-card__image"
+                  src={image}
+                  alt=""
+                  loading="lazy"
+                />
+                <div className="planner-item-card__content">
+                  <h3>{addon.name}</h3>
+                  <p>{currencyFormatter.format(addon.price)} each</p>
+                  <div
+                    className="planner-quantity"
+                    aria-label={`${addon.name} quantity`}
+                  >
+                    <button
+                      type="button"
+                      aria-label={`Remove one ${addon.name}`}
+                      disabled={quantity === 0}
+                      onClick={() => updateQuantity(addon.id, quantity - 1)}
+                    >
+                      −
+                    </button>
+                    <output aria-live="polite">{quantity}</output>
+                    <button
+                      type="button"
+                      aria-label={`Add one ${addon.name}`}
+                      onClick={() => updateQuantity(addon.id, quantity + 1)}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
       )}
 
-      <p aria-live="polite">
-        {selectedCount} selected · Total:{' '}
-        {currencyFormatter.format(selectedTotal)}
+      <p className="planner-section-total" aria-live="polite">
+        Total Add-ons Cost: {currencyFormatter.format(selectedTotal)}
       </p>
     </section>
   );

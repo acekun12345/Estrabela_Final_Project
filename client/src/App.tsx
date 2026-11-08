@@ -15,7 +15,14 @@ import {
   type Meal,
   type Venue,
 } from './services/api';
-
+ 
+// Presentation lang: mga elements na lalabas habang nag-i-scroll
+const REVEAL_SELECTOR = [
+  '.conference-event__main > :not(.planner-intro):not(.planner-error)',
+  '.conference-event__main [class*="card"]',
+  '.conference-event__main [class*="item"]',
+].join(', ');
+ 
 function App() {
   const [venues, setVenues] = useState<Venue[]>([]);
   const [addons, setAddons] = useState<Addon[]>([]);
@@ -34,10 +41,10 @@ function App() {
   const [showDetails, setShowDetails] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
-
+ 
   useEffect(() => {
     let isCurrent = true;
-
+ 
     Promise.all([getVenues(), getAddons(), getMeals()])
       .then(([venueData, addonData, mealData]) => {
         if (!isCurrent) return;
@@ -53,12 +60,51 @@ function App() {
             : 'Could not load the event options.',
         );
       });
-
+ 
     return () => {
       isCurrent = false;
     };
   }, []);
-
+ 
+  // Scroll-reveal animation (walang kinalaman sa data o back end)
+  const loadedCount = venues.length + addons.length + meals.length;
+  useEffect(() => {
+    if (!hasStarted) return;
+ 
+    const reduceMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)',
+    ).matches;
+ 
+    const fresh = Array.from(
+      document.querySelectorAll<HTMLElement>(REVEAL_SELECTOR),
+    ).filter((el) => !el.hasAttribute('data-reveal'));
+ 
+    if (reduceMotion) {
+      fresh.forEach((el) => el.setAttribute('data-reveal', 'in'));
+      return;
+    }
+ 
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return;
+          entry.target.setAttribute('data-reveal', 'in');
+          observer.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -8% 0px' },
+    );
+ 
+    fresh.forEach((el) => {
+      const index = Array.from(el.parentElement?.children ?? []).indexOf(el);
+      el.style.setProperty('--reveal-delay', `${Math.min(index, 6) * 70}ms`);
+      el.setAttribute('data-reveal', '');
+      observer.observe(el);
+    });
+ 
+    return () => observer.disconnect();
+  }, [hasStarted, loadedCount]);
+ 
   const navigateTo = (section: PlannerSection) => {
     setActiveSection(section);
     document.getElementById(section)?.scrollIntoView({
@@ -66,7 +112,7 @@ function App() {
       block: 'start',
     });
   };
-
+ 
   const updateGuestCount = (nextCount: number) => {
     const safeCount = Number.isFinite(nextCount)
       ? Math.min(10000, Math.max(1, Math.floor(nextCount)))
@@ -80,11 +126,11 @@ function App() {
       ),
     );
   };
-
+ 
   if (!hasStarted) {
     return <LandingPage onGetStarted={() => setHasStarted(true)} />;
   }
-
+ 
   return (
     <div className="conference-event" id="top">
       <Navbar
@@ -110,13 +156,13 @@ function App() {
           <h1 id="planner-title">Conference Expense Planner</h1>
           <p>Select your venue, add-ons, and meals below.</p>
         </section>
-
+ 
         {loadError && (
           <p className="planner-error" role="alert">
             {loadError}
           </p>
         )}
-
+ 
         <VenueSelection
           venues={venues}
           quantities={venueQuantities}
@@ -127,7 +173,7 @@ function App() {
             }))
           }
         />
-
+ 
         <AddonsSelection
           addons={addons}
           selectedQuantities={addonQuantities}
@@ -138,7 +184,7 @@ function App() {
             }))
           }
         />
-
+ 
         <MealsSelection
           meals={meals}
           quantities={mealQuantities}
@@ -151,7 +197,7 @@ function App() {
             }))
           }
         />
-
+ 
         <TotalCost
           venues={venues}
           venueQuantities={venueQuantities}
@@ -165,5 +211,5 @@ function App() {
     </div>
   );
 }
-
+ 
 export default App;

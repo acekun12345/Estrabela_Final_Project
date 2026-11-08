@@ -17,7 +17,7 @@ export type Meal = {
   price: number;
 };
 
-const API_BASE_URL =
+const API_BASE_URL = 'https://estrabela-final-project-7wf4.vercel.app/api';
   import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5000/api';
 
 async function getCollection<T>(resource: string): Promise<T[]> {

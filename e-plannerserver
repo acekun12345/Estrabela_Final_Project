@@ -1,0 +1,27 @@
+[33ma920dea[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mclean-history[m[33m, [m[1;31morigin/main[m[33m, [m[1;32mmain[m[33m, [m[1;32mbackup-commits[m[33m)[m fix: allow Vite development origins in CORS
+[33m4871b9b[m feat: add event add-on and meal cards
+[33m4c2acec[m feat: add venue selection cards
+[33m949c20c[m feat: integrate conference planner layout
+[33m5254284[m feat: redesign conference landing page
+[33mdbae7f1[m chore: preserve feature commit history
+[33m4f159bd[m feat: add Express API and middleware
+[33m3eff9d7[m Add 'client/' from commit '7e1ad278eb016fbd466f58b1c315dc2afe01985b'
+[33m49a3892[m chore: initialize project documentation
+[33mca9ab42[m feat: add conference expense planner
+[33m9f1dc69[m chore: update client ignore rules
+[33md25fa3e[m docs: add project setup guide
+[33m28631d2[m feat: add PHP and event date formatters
+[33mdf08c51[m feat: add selection state hook
+[33mc7f8131[m feat: add planner API service
+[33m5b7b6a0[m style: add responsive event planner theme
+[33m8636bd1[m feat: integrate planner views
+[33m9dd1ac2[m feat: add planner navigation bar
+[33mba95c1c[m feat: add expense summary component
+[33m4adfbbf[m feat: add meals selection component
+[33m79d1fcd[m feat: add add-ons selection component
+[33m7193d1c[m feat: add venue selection component
+[33m2a5ab73[m feat: configure planner Redux store
+[33m369da37[m feat: add venue quantity slice
+[33m2dd25ed[m style: add dark landing page theme
+[33md75572e[m feat: add landing page
+[33md63c467[m chore: initialize vite react ts frontend project for conference planner

@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
+import './App.css';
 import AddonsSelection, { type Addon } from './components/AddonsSelection';
+import './components/ConferenceEvent.css';
 import MealsSelection, { type Meal } from './components/MealsSelection';
 import Navbar, { type PlannerView } from './components/Navbar';
 import TotalCost from './components/TotalCost';
@@ -80,21 +82,9 @@ function App() {
   }
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        color: '#f7f4ef',
-        background: '#111916',
-      }}
-    >
+    <div className="conference-event">
       <Navbar activeView={activeView} onNavigate={setActiveView} />
-      <main
-        style={{
-          width: 'min(1100px, calc(100% - 40px))',
-          margin: '0 auto',
-          padding: '40px 0 64px',
-        }}
-      >
+      <main className="conference-event__main">
         {loadError && (
           <p role="alert" style={{ color: '#ffb28a' }}>
             {loadError}

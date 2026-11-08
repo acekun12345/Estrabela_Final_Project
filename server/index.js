@@ -4,13 +4,16 @@ require('dotenv').config();
 const errorHandler = require('./middleware/errorHandler');
 const app = express();
 const PORT = Number(process.env.PORT || 5000);
-const CORS_ORIGIN = process.env.CORS_ORIGIN || '*';
+const CORS_ORIGINS = (process.env.CORS_ORIGIN || 'http://localhost:5173')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
 if (!Number.isInteger(PORT) || PORT < 1 || PORT > 65535) {
   throw new Error('PORT must be an integer between 1 and 65535.');
 }
 
-app.use(cors({ origin: CORS_ORIGIN }));
+app.use(cors({ origin: CORS_ORIGINS }));
 app.use(express.json());
 
 const startedAt = Date.now();

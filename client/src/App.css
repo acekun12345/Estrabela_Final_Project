@@ -62,8 +62,9 @@ html {
 /* ---------- 2. Layout / responsive ---------- */
 .conference-event__main {
   width: 100%;
-  max-width: calc(var(--max-width) + var(--gutter) * 2);
-  margin-inline: auto;
+  max-width: none;
+  box-sizing: border-box;
+  margin-inline: 0;
   padding-inline: var(--gutter);
   padding-block: clamp(24px, 5vw, 56px) clamp(48px, 8vw, 96px);
   display: flex;

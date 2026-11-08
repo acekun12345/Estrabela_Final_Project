@@ -10,9 +10,17 @@ export type Venue = {
 
 type VenueSelectionProps = {
   venues: Venue[];
-  selectedVenueId?: number | null;
-  onSelectVenue?: (venue: Venue) => void;
+  quantities?: Record<string, number>;
+  onQuantityChange?: (venueId: number, quantity: number) => void;
 };
+
+const venueImages = [
+  'https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=720&q=80',
+  'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=720&q=80',
+  'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=720&q=80',
+  'https://images.unsplash.com/photo-1505236858219-8359eb29e329?auto=format&fit=crop&w=720&q=80',
+  'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=720&q=80',
+];
 
 const currencyFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -20,28 +28,42 @@ const currencyFormatter = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 2,
 });
 
-export function VenueSelection({
+function VenueSelection({
   venues,
-  selectedVenueId: controlledSelectedVenueId,
-  onSelectVenue,
+  quantities: controlledQuantities,
+  onQuantityChange,
 }: VenueSelectionProps) {
-  const [internalSelectedVenueId, setInternalSelectedVenueId] =
-    useState<number | null>(null);
-  const isControlled =
-    controlledSelectedVenueId !== undefined && onSelectVenue !== undefined;
-  const selectedVenueId = isControlled
-    ? controlledSelectedVenueId
-    : internalSelectedVenueId;
-  const selectedVenue =
-    venues.find((venue) => venue.id === selectedVenueId) ?? null;
+  const [internalQuantities, setInternalQuantities] = useState<
+    Record<string, number>
+  >({});
+  const quantities = controlledQuantities ?? internalQuantities;
+
+  const updateQuantity = (venueId: number, nextQuantity: number) => {
+    const quantity = Math.max(0, nextQuantity);
+
+    if (onQuantityChange) {
+      onQuantityChange(venueId, quantity);
+    } else {
+      setInternalQuantities((current) => ({
+        ...current,
+        [venueId]: quantity,
+      }));
+    }
+  };
 
   return (
-    <section className="venue-selection" aria-labelledby="venue-selection-title">
+    <section
+      className="venue-selection planner-section"
+      id="venues"
+      aria-labelledby="venue-selection-title"
+    >
       <div className="venue-selection-heading">
-        <p className="venue-selection-eyebrow">FIND YOUR SPACE</p>
-        <h2 id="venue-selection-title">Choose a venue</h2>
+        <div>
+          <p className="planner-section__eyebrow">01 / SPACE</p>
+          <h2 id="venue-selection-title">Venue Room Selection</h2>
+        </div>
         <p className="venue-selection-intro">
-          Select a space that fits your gathering.
+          Find the right space for your event and guests.
         </p>
       </div>
 
@@ -50,65 +72,54 @@ export function VenueSelection({
           No venues are currently available.
         </p>
       ) : (
-        <div className="venue-selection-layout">
-          <div className="venue-selection-list" aria-label="Available venues">
-            {venues.map((venue) => (
-              <button
-                className={`venue-option${selectedVenueId === venue.id ? ' is-selected' : ''}`}
-                key={venue.id}
-                type="button"
-                aria-pressed={selectedVenueId === venue.id}
-                onClick={() => {
-                  if (isControlled) {
-                    onSelectVenue(venue);
-                  } else {
-                    setInternalSelectedVenueId(venue.id);
-                    onSelectVenue?.(venue);
-                  }
-                }}
-              >
-                <span className="venue-option-icon" aria-hidden="true">
-                  {venue.name.charAt(0)}
-                </span>
-                <span className="venue-option-copy">
-                  <span className="venue-option-name">{venue.name}</span>
-                  <span className="venue-option-capacity">
-                    Up to {venue.capacity} guests
-                  </span>
-                </span>
-                <span className="venue-option-price">
-                  {currencyFormatter.format(venue.price)}
-                </span>
-              </button>
-            ))}
-          </div>
+        <div className="venue-selection-list">
+          {venues.map((venue, index) => {
+            const quantity = quantities[String(venue.id)] ?? 0;
 
-          <aside
-            className="venue-details"
-            aria-live="polite"
-            aria-label="Selected venue details"
-          >
-            {selectedVenue ? (
-              <>
-                <p className="venue-details-eyebrow">YOUR SELECTED VENUE</p>
-                <h3>{selectedVenue.name}</h3>
-                <div className="venue-detail-row">
-                  <span>Guest capacity</span>
-                  <strong>{selectedVenue.capacity} people</strong>
+            return (
+              <article
+                className={`venue-option planner-item-card${quantity > 0 ? ' is-selected' : ''}`}
+                key={venue.id}
+              >
+                <img
+                  className="planner-item-card__image"
+                  src={venueImages[index % venueImages.length]}
+                  alt=""
+                  loading="lazy"
+                />
+                <div className="planner-item-card__content">
+                  <h3 className="venue-option-name">{venue.name}</h3>
+                  <p className="venue-option-capacity">
+                    Capacity: {venue.capacity}
+                  </p>
+                  <p className="venue-option-price">
+                    {currencyFormatter.format(venue.price)}
+                  </p>
+                  <div
+                    className="planner-quantity"
+                    aria-label={`${venue.name} quantity`}
+                  >
+                    <button
+                      type="button"
+                      aria-label={`Remove one ${venue.name}`}
+                      disabled={quantity === 0}
+                      onClick={() => updateQuantity(venue.id, quantity - 1)}
+                    >
+                      −
+                    </button>
+                    <output aria-live="polite">{quantity}</output>
+                    <button
+                      type="button"
+                      aria-label={`Add one ${venue.name}`}
+                      onClick={() => updateQuantity(venue.id, quantity + 1)}
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
-                <div className="venue-detail-row">
-                  <span>Venue cost</span>
-                  <strong>
-                    {currencyFormatter.format(selectedVenue.price)}
-                  </strong>
-                </div>
-              </>
-            ) : (
-              <p className="venue-details-placeholder">
-                Choose a venue to see its capacity and cost.
-              </p>
-            )}
-          </aside>
+              </article>
+            );
+          })}
         </div>
       )}
     </section>

@@ -46,11 +46,18 @@ function App() {
     let isCurrent = true;
  
     Promise.all([getVenues(), getAddons(), getMeals()])
-      .then(([venueData, addonData, mealData]) => {
+      .then(([venueResult, addonResult, mealResult]) => {
         if (!isCurrent) return;
-        setVenues(venueData);
-        setAddons(addonData);
-        setMeals(mealData);
+        setVenues(venueResult.items);
+        setAddons(addonResult.items);
+        setMeals(mealResult.items);
+        setLoadError(
+          [venueResult, addonResult, mealResult].some(
+            (result) => result.usedFallback,
+          )
+            ? 'The live API could not be reached. Sample data is shown; selections will not be saved to the backend.'
+            : null,
+        );
       })
       .catch((error: unknown) => {
         if (!isCurrent) return;

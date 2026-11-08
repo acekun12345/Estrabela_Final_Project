@@ -5,11 +5,10 @@ const errorHandler = require('./middleware/errorHandler');
 const app = express();
 const PORT = Number(process.env.PORT || 5000);
 
-// Pinapayagan nito ang mga local environments pati na rin ang kahit anong live Vercel frontend URL
 const allowedOrigins = [
   'http://localhost:5173',
   'http://127.0.0.1:5173',
-  /\.vercel\.app$/ // Awtomatikong pinapayagan ang lahat ng Vercel deployment links
+  /^https:\/\/estrabela-final-project-[a-z0-9-]+\.vercel\.app$/i,
 ];
 
 const CORS_ORIGINS = (process.env.CORS_ORIGIN || '')
@@ -25,9 +24,9 @@ if (!Number.isInteger(PORT) || PORT < 1 || PORT > 65535) {
   throw new Error('PORT must be an integer between 1 and 65535.');
 }
 
-app.use(cors({ 
+app.use(cors({
   origin: allowedOrigins,
-  credentials: true 
+  credentials: true,
 }));
 app.use(express.json());
 

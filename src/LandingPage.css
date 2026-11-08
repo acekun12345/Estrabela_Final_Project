@@ -1,18 +1,20 @@
 .landing-page {
-  --landing-ink: #17251f;
-  --landing-muted: #617068;
-  --landing-green: #255a45;
-  --landing-lime: #d3ef91;
-  --landing-cream: #f7f6f0;
+  --landing-ink: #f7f4ef;
+  --landing-muted: #c1c6c2;
+  --landing-green: #ff8a3d;
+  --landing-lime: #ffd0a8;
 
+  position: relative;
+  isolation: isolate;
   min-height: 100vh;
   padding: 0 clamp(24px, 7vw, 104px);
   overflow: hidden;
   box-sizing: border-box;
   color: var(--landing-ink);
   background:
-    radial-gradient(ellipse at 82% 43%, rgb(211 239 145 / 34%), transparent 29%),
-    var(--landing-cream);
+    linear-gradient(105deg, rgb(9 15 14 / 94%) 0%, rgb(12 20 18 / 82%) 48%, rgb(13 17 17 / 62%) 100%),
+    url('https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=2200&q=85')
+      center / cover no-repeat;
   font-family: var(--sans, system-ui, sans-serif);
   text-align: left;
 }
@@ -22,7 +24,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid rgb(23 37 31 / 10%);
+  border-bottom: 1px solid rgb(255 255 255 / 14%);
 }
 
 .landing-brand {
@@ -42,8 +44,9 @@
   display: grid;
   place-items: center;
   border-radius: 11px;
-  color: white;
+  color: #20150f;
   background: var(--landing-green);
+  box-shadow: 0 0 22px rgb(255 138 61 / 28%);
   font-family: Georgia, serif;
   font-size: 20px;
 }
@@ -72,7 +75,7 @@
 
 .landing-eyebrow {
   margin: 0 0 20px;
-  color: var(--landing-green);
+  color: #ffad73;
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 1.8px;
@@ -81,26 +84,32 @@
 .landing-page h1 {
   max-width: 570px;
   margin: 0;
-  color: var(--landing-ink);
+  color: #fffaf5;
   font-family: Georgia, 'Times New Roman', serif;
   font-size: clamp(48px, 6vw, 76px);
   font-weight: 500;
   letter-spacing: -3.4px;
   line-height: 1.04;
+  text-shadow:
+    0 0 18px rgb(255 167 105 / 35%),
+    0 0 48px rgb(255 121 54 / 22%);
 }
 
 .landing-description {
   max-width: 470px;
   margin: 26px 0 28px;
   padding: 17px 20px;
-  border-left: 3px solid #9dbb72;
+  border: 1px solid rgb(255 255 255 / 13%);
+  border-left: 3px solid #ff9a59;
   border-radius: 0 9px 9px 0;
-  background: rgb(255 255 255 / 62%);
+  background: rgb(255 255 255 / 9%);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 15%);
+  backdrop-filter: blur(12px);
 }
 
 .landing-description p {
   margin: 0;
-  color: #536159;
+  color: #e0e1dc;
   font-size: 15px;
   line-height: 1.75;
 }
@@ -112,15 +121,17 @@
   justify-content: center;
   gap: 28px;
   padding: 0 22px;
-  border: 0;
+  border: 1px solid rgb(255 208 168 / 50%);
   border-radius: 7px;
-  color: white;
-  background: var(--landing-green);
-  box-shadow: 0 8px 18px rgb(37 90 69 / 17%);
+  color: #21150e;
+  background: linear-gradient(135deg, #ffad70, #ff7838);
+  box-shadow:
+    0 8px 18px rgb(255 111 49 / 23%),
+    0 0 24px rgb(255 138 61 / 17%);
   cursor: pointer;
   font: inherit;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 800;
   transition:
     background-color 160ms ease,
     transform 160ms ease,
@@ -128,13 +139,15 @@
 }
 
 .landing-cta:hover {
-  background: #1c4937;
-  box-shadow: 0 10px 22px rgb(37 90 69 / 23%);
+  background: linear-gradient(135deg, #ffc08f, #ff8950);
+  box-shadow:
+    0 10px 24px rgb(255 111 49 / 32%),
+    0 0 30px rgb(255 138 61 / 25%);
   transform: translateY(-2px);
 }
 
 .landing-cta:focus-visible {
-  outline: 3px solid #a1c66c;
+  outline: 3px solid #ffd0a8;
   outline-offset: 3px;
 }
 
@@ -146,7 +159,7 @@
 
 .landing-reassurance {
   margin-top: 15px;
-  color: #78827b;
+  color: #bdc3bd;
   font-size: 12px;
 }
 
@@ -156,13 +169,14 @@
   width: min(100%, 380px);
   justify-self: center;
   padding: 27px 28px 20px;
-  border: 1px solid rgb(23 37 31 / 7%);
+  border: 1px solid rgb(255 255 255 / 20%);
   border-radius: 15px;
-  background: #fff;
+  background: rgb(21 27 25 / 67%);
   box-shadow:
-    0 25px 60px rgb(38 57 45 / 12%),
-    0 4px 12px rgb(38 57 45 / 4%);
+    0 25px 60px rgb(0 0 0 / 36%),
+    0 4px 12px rgb(0 0 0 / 18%);
   box-sizing: border-box;
+  backdrop-filter: blur(18px);
   transform: rotate(2deg);
 }
 
@@ -174,7 +188,7 @@
 }
 
 .landing-preview-top {
-  color: #839087;
+  color: #b7c0ba;
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 1px;
@@ -183,8 +197,8 @@
 .landing-status {
   padding: 5px 8px;
   border-radius: 20px;
-  color: #356b48;
-  background: #e8f4e3;
+  color: #c0e8c1;
+  background: rgb(85 143 91 / 28%);
   font-size: 9px;
   letter-spacing: 0.5px;
 }
@@ -198,16 +212,17 @@
 
 .landing-budget-total {
   margin-top: 8px;
-  color: var(--landing-ink);
+  color: #fffaf5;
   font-family: Georgia, 'Times New Roman', serif;
   font-size: 37px;
   letter-spacing: -1px;
   line-height: 1.2;
+  text-shadow: 0 0 20px rgb(255 151 85 / 22%);
 }
 
 .landing-budget-caption {
   margin-top: 2px;
-  color: #89938c;
+  color: #b0b9b2;
   font-size: 11px;
 }
 
@@ -216,7 +231,7 @@
   margin-top: 21px;
   overflow: hidden;
   border-radius: 5px;
-  background: #edf0e9;
+  background: rgb(255 255 255 / 14%);
 }
 
 .landing-budget-bar span {
@@ -224,18 +239,18 @@
   height: 100%;
   display: block;
   border-radius: inherit;
-  background: #6d9a69;
+  background: linear-gradient(90deg, #f8a15e, #ffd08a);
 }
 
 .landing-budget-labels {
   margin-top: 8px;
-  color: #89938c;
+  color: #b0b9b2;
   font-size: 10px;
 }
 
 .landing-expenses {
   margin-top: 21px;
-  border-top: 1px solid #eef0ec;
+  border-top: 1px solid rgb(255 255 255 / 14%);
 }
 
 .landing-expense {
@@ -243,14 +258,14 @@
   display: flex;
   align-items: center;
   gap: 11px;
-  border-bottom: 1px solid #f1f2ef;
-  color: #536159;
+  border-bottom: 1px solid rgb(255 255 255 / 10%);
+  color: #d3d9d4;
   font-size: 12px;
 }
 
 .landing-expense strong {
   margin-left: auto;
-  color: var(--landing-ink);
+  color: #fffaf5;
   font-size: 12px;
 }
 
@@ -265,23 +280,23 @@
 }
 
 .landing-expense-venue {
-  color: #52775d;
-  background: #edf4e9;
+  color: #c1e1c0;
+  background: rgb(115 164 112 / 25%);
 }
 
 .landing-expense-meals {
-  color: #9c7044;
-  background: #f8f0e2;
+  color: #ffd4a8;
+  background: rgb(199 140 81 / 24%);
 }
 
 .landing-expense-extras {
-  color: #6f6b9b;
-  background: #f0eef9;
+  color: #d4ccff;
+  background: rgb(132 119 191 / 25%);
 }
 
 .landing-decoration {
   position: absolute;
-  border: 1px solid rgb(80 115 82 / 12%);
+  border: 1px solid rgb(255 193 145 / 14%);
   border-radius: 50%;
 }
 
@@ -303,8 +318,8 @@
 
 .landing-footer {
   padding: 20px 0 28px;
-  border-top: 1px solid rgb(23 37 31 / 10%);
-  color: #7c877f;
+  border-top: 1px solid rgb(255 255 255 / 14%);
+  color: #adb6af;
   font-size: 11px;
   text-align: center;
 }
@@ -312,6 +327,7 @@
 @media (max-width: 760px) {
   .landing-page {
     padding: 0 24px;
+    background-position: center;
   }
 
   .landing-header {
